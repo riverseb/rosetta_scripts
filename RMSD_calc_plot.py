@@ -1,8 +1,18 @@
+#Authors: @riverseb
 import argparse
 import calcRMSD_atomSubset as calcRMSD
 import rmsd_vs_score as rmsd_plot
 
 def main(ref_pdb, query_pdb_dir, ref_ligand, query_ligand):
+    """
+    Calculate RMSD between two ligands using PyMOL and RDkit. Performs substructure
+    matching between the reference ligand and the query ligand. Then plots RMSD vs score.
+
+    :param ref_pdb: reference pdb file
+    :param query_pdb_dir: directory containing query pdb files
+    :param ref_ligand: reference ligand
+    :param query_ligand: query ligand
+    """
     calcRMSD.main(ref_pdb, query_pdb_dir, ref_ligand, query_ligand)
     ref_name = ref_pdb.split("/")[-1].split(".")[0]
     rmsd_plot.main(f"scores/rmsd_scores_{ref_name}.txt", ref_name)

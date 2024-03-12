@@ -1,4 +1,4 @@
-## Written by Sebastian Rivera
+## Authors: @riverseb
 import os
 import pandas as pd
 import rdkit.Chem as rd
@@ -6,6 +6,7 @@ import rdkit.Chem.rdMolAlign as rdMolAlign
 from rdkit.Chem import AllChem
 from pymol import cmd, finish_launching
 
+# align query pdb to reference over the whole reference pdb using pymol
 def align_pdbs(ref_pdb, query_pdb):
     cmd.load(ref_pdb, "ref")
     cmd.load(query_pdb, "query")
@@ -50,53 +51,49 @@ def extract_and_save_ref_ligand(aligned_ref_pdb, ref_ligand):
     cmd.delete("ref_ligand")
 
 def calc_rmsd_atomSubset(aligned_ref_ligand, query_ligand):
-    """Calculate RMSD between two ligands using PyMOL.
+    """Calculate RMSD between two ligands using PyMOL and RDkit. Performs substructure
+    matching between the reference ligand and the query ligand.
 
     :param ref_ligand: aligned reference ligand pdb file
     :param query_ligand: query ligand pdb file
-    :param atomPairs: list of atom pairs. on the first line list the reference atoms, on the second line the query atoms. order should be consistent
     """
     # load the reference ligand
     ref_mol = rd.rdmolfiles.MolFromMol2File(aligned_ref_ligand)
     query_mol = rd.rdmolfiles.MolFromMol2File(query_ligand)
-    # with open(atomPairs, 'r') as input:
-    #     ref_substruct, query_substruct = input.readline().strip().split()
-    
-    # ref_substruct_mol = rd.MolFromSmiles(ref_substruct)
-    # query_substruct_mol = rd.MolFromSmiles(query_substruct)
-    
-    # ref_atomIDs = ref_mol.GetSubstructMatch(ref_substruct_mol)
-    # query_atomIDs = query_mol.GetSubstructMatch(query_substruct_mol)
     ref_match = ref_mol.GetSubstructMatch(query_mol)
     query_match = query_mol.GetSubstructMatch(ref_mol)
-    # ref_atom_codes = rdMolDescriptors.GetAtomPairAtomCode(ref_mol, ref_atomIDs)
-    # query_atom_codes = rdMolDescriptors.GetAtomPairAtomCode(query_mol, query_atomIDs)
-    # #atom_map = [(x, y) for x, y in zip(query_atomIDs, ref_atomIDs)]
-    # params = rdMolDescriptors.AtomPairsParameters()
-    # params.GetNonzeroParameters(query_mol, ref_mol, query_atom_codes, ref_atom_codes)
     rmsd = AllChem.CalcRMS(ref_mol, query_mol, map=[list(zip(query_match , ref_match))]) 
     return rmsd
 
 def main(ref_pdb, query_pdb_dir, ref_ligand, query_ligand):
     finish_launching(['pymol', '-qc'])
-
+    # create list of query pdbs
     query_pdbs = [pdbFile for pdbFile in os.listdir(query_pdb_dir) if pdbFile.endswith(".pdb")]
+    # align and save reference pdb
     aligned_ref_pdb = align_pdbs(ref_pdb, f"{query_pdb_dir}{query_pdbs[0]}")
+    # extract and save reference ligand
     extract_and_save_ref_ligand(aligned_ref_pdb, ref_ligand)
     
     if not os.path.exists("scores/"): os.mkdir("scores/")
     ref_name = ref_pdb.split("/")[-1].split(".")[0]
+    # create rmsd vs score table for each query ligand
     with open(f"scores/rmsd_scores_{ref_name}.txt", "w") as out:
         out.write("rmsd\tquery_ligand\tdescription\n")
         rmsd_table = []
+        # loop over query pdbs
         for query in query_pdbs:
             query_pdb = query_pdb_dir + query
             index_list = query.split(".")[0].split("_")[-2:]
             index = "_".join(index_list)
+            # extract and save query ligand
             extract_and_save_query_ligand(query_pdb, query_ligand, index)
+            # calculate rmsd
             rmsd = calc_rmsd_atomSubset(f"aligned_{ref_ligand}.mol2", f"docked_ligands/{query_ligand}_{index}.mol2")
+            # add to rmsd table
             rmsd_table.append([rmsd, query_ligand, query])
+        # sort by rmsd
         sorted_rmsd_table = sorted(rmsd_table, key=lambda x: float(x[0]))
+        # write out rmsd vs score table
         for entry in sorted_rmsd_table:
             out.write(f"{entry[0]}\t{entry[1]}\t{entry[2]}\n")
     cmd.quit()

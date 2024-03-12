@@ -1,6 +1,6 @@
+#Authors: @riverseb
 import argparse
 from argparse import ArgumentError
-import os
 import GALD_file_clean as file_clean
 import calcRMSD_atomSubset as rmsd_calc
 import rmsd_vs_score as rmsd_plot 
@@ -8,6 +8,20 @@ import rmsd_vs_score as rmsd_plot
 def main(project, inputFile, repeats=5, native=None, rmsd=True, query_pdbs="pdbs/", 
          query_lig=None, ref_lig=None, clean=True, rmsd_path=None,
          score_path="scores/fullscore_sorted.sc"):
+    """ 
+    Cleans the GALigandDock output files and generates rmsd vs score plots
+
+    :param project: name of project
+    :param repeats: number of repeats
+    :param native: path to native pdb
+    :param rmsd: calculate rmsd? (Boolean)
+    :param query_pdbs: path to query pdbs
+    :param query_lig: query ligand
+    :param ref_lig: reference ligand
+    :param clean: clean files? (Boolean)
+    :param rmsd_path: path to rmsd vs score plot
+    :param score_path: path to score file
+    """
     if clean:
         file_clean.main(project, inputFile, repeats)
     if rmsd and native:

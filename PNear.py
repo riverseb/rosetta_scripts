@@ -1,9 +1,10 @@
+#Authors: @riverseb
 import pandas as pd
-import os 
 from numpy import array
 from numpy import exp
 import sklearn.utils as sk
 from scipy import stats
+# calculate funnel-likeness of rmsd vs score plots using PNear calculation
 def calculate_pnear( scores, rmsds, lambda_val=2.0, kbt=0.62 ) :                                                                                                                                            
     nscores = len(scores)                                                                                                                                                                                   
     assert nscores == len(rmsds), "Error in calculate_pnear(): The scores and rmsds lists must be of the same length."                                                                                      
@@ -24,6 +25,7 @@ def calculate_pnear( scores, rmsds, lambda_val=2.0, kbt=0.62 ) :
     rounded_float = float(f"{round(pnear, 2):.2f}")  
     return rounded_float  
                                       
+# bootstrap resample and calculate PNear for each resample
 def bootstrap_pnear_peptide(data_frame, x_column, y_column, bootstrap_n=1000, lambda_val=2.0, kbt=0.62):                                                                                                                                                    
                                                                                                                                                                                                             
     bootstrap_vals = []                                                                                                                                                                                     
@@ -48,8 +50,8 @@ def bootstrap_pnear_peptide(data_frame, x_column, y_column, bootstrap_n=1000, la
     reference_ligand = landscape_df.iloc[0:1]                                                                                                                                                               
     landscape_df = landscape_df.iloc[1: , :]                                                                                                                                                                
                                                                                                                                                                                                             
-    print(reference_ligand)                                                                                                                                                                                 
-    print(landscape_df)                                                                                                                                                                                                        
+    #DEBUGGING: print(reference_ligand)                                                                                                                                                                                 
+    #DEBUGGING: print(landscape_df)                                                                                                                                                                                                        
     for x in range(bootstrap_n + 1):                                                                                                                                                                        
         if x % 100 == 0:                                                                                                                                                                                    
             print("now on bootstrap step: " + str(x))                                                                                                                                   
@@ -76,6 +78,7 @@ def bootstrap_pnear_peptide(data_frame, x_column, y_column, bootstrap_n=1000, la
     print(bootstraped_pnears_df)                                                                                                                                                                                                        
     return bootstraped_pnears_df    
 
+# calculate confidence interval of PNear using bootstrap resampled data
 def calc_PNear_CI(df, confidence=0.95):
     mean = df['pnear_vals'].mean()
     sem = df['pnear_vals'].sem()

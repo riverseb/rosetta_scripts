@@ -2,16 +2,19 @@ import argparse
 from collections import defaultdict
 import os
 from seq_logo import main as seq_logo_main
+# sort and organize CM files into fastas, pdbs, and stats
 def organize_CM_files(cm_dir):
     fasta_dir = os.path.join(cm_dir, "fastas/")
     pdb_dir = os.path.join(cm_dir, "pdbs/")
     stats_dir = os.path.join(cm_dir, "stats/")
+    # make new dirs if they don't exist
     if not os.path.exists(os.path.join(cm_dir, "fastas")):
         os.mkdir(fasta_dir)
     if not os.path.exists(os.path.join(cm_dir, "pdbs")):
         os.mkdir(pdb_dir)
     if not os.path.exists(os.path.join(cm_dir, "stats")):
         os.mkdir(stats_dir)
+    # loop over files and sort based on extension
     for file in os.listdir(cm_dir):
         if file.endswith(".fasta"):
             os.rename(os.path.join(cm_dir, file), os.path.join(fasta_dir, file))
@@ -20,6 +23,7 @@ def organize_CM_files(cm_dir):
         elif file.endswith(".stats"):
             os.rename(os.path.join(cm_dir, file), os.path.join(stats_dir, file))
 
+# get unique CM sequences
 def unique_CM_seqs(cm_fasta_dir):
     seqDict = defaultdict(list)
     # loop through files in the directory

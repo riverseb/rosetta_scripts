@@ -1,6 +1,8 @@
+# Authors: @riverseb
 import os 
 from shutil import copy
 import argparse
+# parse through AlphaFold2 output folders and copy first model to specified dir
 def copy_rename_best_model(model_dir, output_name, output_dir):
     if not os.path.exists(output_dir): os.mkdir(output_dir)
     index = model_dir.split("=")[-1]
@@ -9,10 +11,6 @@ def copy_rename_best_model(model_dir, output_name, output_dir):
     except:
         print("Couldn't find unrelaxed_model_1_pred_0.pdb in " + model_dir)
 
-    # for model in os.listdir(model_dir):
-    #     index = model_dir.split("=")[-1]
-    #     if model.startswith("relaxed") and model.endswith(".pdb"):
-    #         copy(f'{model_dir}/{model}', f'{output_dir}/{output_name}_{index}.pdb')
 
 def main(af2_HT_dir, output_name, output_dir):
    # os.chdir(af2_HT_dir)

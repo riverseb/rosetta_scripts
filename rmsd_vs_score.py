@@ -1,8 +1,15 @@
-## Written by Sebastian Rivera
+## Authors: @riverseb
 import pandas as pd
 import matplotlib.pyplot as plt
 from PNear import main as pnear_main
 def clean_and_read_score_file(file_path):
+    """
+    Clean and read Rosetta score file.
+
+    :param file_path: The file path to the score file.
+    :return: The dataframe containing scores and model names.
+    """
+    
     # Read the file into a pandas dataframe
     df = pd.read_csv(file_path, sep='\s+', header=0)
     
@@ -14,11 +21,26 @@ def clean_and_read_score_file(file_path):
     scores_descriptions = df[['total_score', 'description']]
     return scores_descriptions
 
+
 def join_rmsd_scores(rmsd_path, scores_descriptions):
+    """
+    Join RMSD scores with Rosetta energy scores by model name.
+
+    :param rmsd_path: The file path to the RMSD scores.
+    :param scores_descriptions: The dataframe containing scores and model names.
+    :return: The merged dataframe containing RMSD scores and energy scores and model names.
+    """
     rmsd_df = pd.read_csv(rmsd_path, delimiter='\t', header=0)
     rmsd_and_scores = rmsd_df.merge(scores_descriptions, on='description')
     return rmsd_and_scores
 def rmsd_vs_score_plot(rmsd_and_scores, ref_name):
+    """
+    Generate rmsd vs score plot using matplotlib. Also calculates PNear and confidence interval
+    and includes it as an inset on the plot.
+
+    :param rmsd_and_scores: The merged dataframe containing RMSD scores and energy scores and model names.
+    :param ref_name: The reference pdb name.
+    """
     fig, ax = plt.subplots(figsize=(6.5, 4.1))
     rmsd_and_scores.plot.scatter(x='rmsd', y='total_score', ax=ax)
     y_min, y_max = ax.get_ylim()

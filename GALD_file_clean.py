@@ -1,4 +1,4 @@
-## Written by Sebastian Rivera
+## Authors: @riverseb
 import os 
 import argparse 
 import fileinput
@@ -62,15 +62,6 @@ def rename_projFiles(project, inputFile, n = 5):
     
 def combine_scores(scores):
     ### Usage: This function is designed to combine the scores from all repeats    
-    # if scores is type(list):
-        
-    #     header = scores[0]
-    #     data = [scores.strip().split() for line in scores]
-    #     sorted_data = sorted(data, key=lambda x: float(x[1]))
-    #     with open("fullscore_sorted.sc", 'w', encoding='utf-8') as outfile:
-    #         outfile.write("".join("{:<20}".format(x) for x in header if x != "SCORE:") + "\n")
-    #         for row in sorted_data:
-    #             outfile.write("".join("{:<20}".format(s) for s in row if s != "SCORE:") + "\n")
     if os.path.exists(scores):
         # creates list for all score data
         full_data =[]
