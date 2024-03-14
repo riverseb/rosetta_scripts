@@ -45,10 +45,6 @@ class SLURM_settings:
                 f.write(f'#SBATCH --gres=gpu:{self.gpus}\n')
                 f.write(f'#SBATCH --mem-per-gpu={self.mem}\n')
                 f.write(f'#SBATCH --cpus-per-task={self.cpus}\n')
-#     def import_settings(self, settings):
-#         if settings in profiles:
-#             self
-# profiles = ['gpu', 'cpu', 'GALD', 'MD']
 
 GALD_HT = SLURM_settings(
     job_name = 'GALD',
@@ -60,5 +56,5 @@ GALD_HT = SLURM_settings(
     account = 'maom99',
     logdir = ' ',
     array = "1-100",
-    mail_type = 'BEGIN,END,FAIL'
+    mail_type = 'FAIL'
 )
