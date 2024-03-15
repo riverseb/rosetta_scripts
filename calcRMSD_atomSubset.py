@@ -8,9 +8,14 @@ from pymol import cmd, finish_launching
 
 # align query pdb to reference over the whole reference pdb using pymol
 def align_pdbs(ref_pdb, query_pdb):
+    print("Reinitializing PyMOL...")
+    cmd.reinitialize()
+    print("Loading input structs...")
     cmd.load(ref_pdb, "ref")
     cmd.load(query_pdb, "query")
+    print("Aligning...")
     cmd.align("ref", "query")
+    print("Saving...")
     cmd.save("aligned_ref.pdb", "ref")    
     cmd.delete("query")
     cmd.delete("ref")
@@ -23,6 +28,7 @@ def extract_and_save_query_ligand(query_pdb, query_ligand, index):
     :param query_ligand: query ligand
     """
     # load the query pdb
+    cmd.reinitialize()
     cmd.load(query_pdb, "query")
 
     # select and extract the query ligand
@@ -39,6 +45,7 @@ def extract_and_save_ref_ligand(aligned_ref_pdb, ref_ligand):
     :param ref_pdb: reference pdb file
     :param ref_ligand: reference ligand
     """
+    cmd.reinitialize()
     # load the reference pdb
     cmd.load(aligned_ref_pdb, "ref")
 
@@ -66,18 +73,24 @@ def calc_rmsd_atomSubset(aligned_ref_ligand, query_ligand):
     return rmsd
 
 def main(ref_pdb, query_pdb_dir, ref_ligand, query_ligand):
-    finish_launching(['pymol', '-qc'])
+    print("Starting PyMOL...")
+    # finish_launching(['pymol', '-c'])
     # create list of query pdbs
     query_pdbs = [pdbFile for pdbFile in os.listdir(query_pdb_dir) if pdbFile.endswith(".pdb")]
     # align and save reference pdb
+    print("Aligning reference pdb...")
+    print(f"Reference pdb: {ref_pdb}")
+    print(f"Query pdbs: {query_pdb_dir}{query_pdbs[0]}")
     aligned_ref_pdb = align_pdbs(ref_pdb, f"{query_pdb_dir}{query_pdbs[0]}")
     # extract and save reference ligand
+    print("Extracting reference ligand...")
     extract_and_save_ref_ligand(aligned_ref_pdb, ref_ligand)
     
     if not os.path.exists("scores/"): os.mkdir("scores/")
     ref_name = ref_pdb.split("/")[-1].split(".")[0]
     # create rmsd vs score table for each query ligand
     with open(f"scores/rmsd_scores_{ref_name}.txt", "w") as out:
+        out.seek(0)
         out.write("rmsd\tquery_ligand\tdescription\n")
         rmsd_table = []
         # loop over query pdbs
@@ -96,7 +109,7 @@ def main(ref_pdb, query_pdb_dir, ref_ligand, query_ligand):
         # write out rmsd vs score table
         for entry in sorted_rmsd_table:
             out.write(f"{entry[0]}\t{entry[1]}\t{entry[2]}\n")
-    cmd.quit()
+    # cmd.quit()
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
