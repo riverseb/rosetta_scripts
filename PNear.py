@@ -49,11 +49,9 @@ def bootstrap_pnear_peptide(data_frame, x_column, y_column, bootstrap_n=1000, la
                                             ascending=True)                                                                                                                                                 
     reference_ligand = landscape_df.iloc[0:1]                                                                                                                                                               
     landscape_df = landscape_df.iloc[1: , :]                                                                                                                                                                
-                                                                                                                                                                                                            
-    #DEBUGGING: print(reference_ligand)                                                                                                                                                                                 
-    #DEBUGGING: print(landscape_df)                                                                                                                                                                                                        
+                                                                                                                                                                                                                                                                                                                                                                                                                   
     for x in range(bootstrap_n + 1):                                                                                                                                                                        
-        if x % 100 == 0:                                                                                                                                                                                    
+        if x % 150 == 0:                                                                                                                                                                                    
             print("now on bootstrap step: " + str(x))                                                                                                                                   
                                                                                                                                                                                                             
         boot_df = sk.resample(landscape_df,                                                                                                                                                                
@@ -62,13 +60,11 @@ def bootstrap_pnear_peptide(data_frame, x_column, y_column, bootstrap_n=1000, la
                               random_state=None,                                                                                                                                                           
                               stratify=None)                                                                                                                                                                
         boot_w_ref = [boot_df, reference_ligand]                                                                                                                                                            
-        bootref_df = pd.concat(boot_w_ref)                                                                                                                                                                  
-        bootref_df = bootref_df.sort_values([x_column],                                                                                                                                                     
-                                                ascending=True)                                                                                                                                             
-        #DEBUGGING: print(bootref_df.iloc[0:1])                                                                                                                                                             
+        bootref_df = pd.concat(boot_w_ref)
+        bootref_df = bootref_df.sort_values([x_column], ascending=True)                                                                                                                                             
+        # print(bootref_df.iloc[0:1])                                                                                                                                                             
                                                                                                                                                                                                             
-        bootref_df = bootref_df.reset_index()                                                                                                                                                               
-                                                                                                                                                                                                            
+        bootref_df = bootref_df.reset_index()
         pnear = calculate_pnear(bootref_df[y_column].astype(float),                                                                                                                                     
                                 bootref_df[x_column].astype(float), lambda_val=lambda_val, kbt=kbt)                                                                                                                                           
                                                                                                                                                                                                             
