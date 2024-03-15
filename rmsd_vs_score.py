@@ -32,6 +32,11 @@ def join_rmsd_scores(rmsd_path, scores_descriptions):
     """
     rmsd_df = pd.read_csv(rmsd_path, delimiter='\t', header=0)
     rmsd_and_scores = rmsd_df.merge(scores_descriptions, on='description')
+    with open('rmsd_and_scores.csv', 'w') as f:
+        f.seek(0)
+        rmsd_and_scores.to_csv(f, index=False, sep='\t', mode="w")
+        f.truncate()
+    # rmsd_and_scores.to_csv('rmsd_and_scores.csv', index=False, sep='\t', mode="w")
     return rmsd_and_scores
 def rmsd_vs_score_plot(rmsd_and_scores, ref_name):
     """
@@ -42,7 +47,9 @@ def rmsd_vs_score_plot(rmsd_and_scores, ref_name):
     :param ref_name: The reference pdb name.
     """
     fig, ax = plt.subplots(figsize=(6.5, 4.1))
+    # Plot rmsd vs total score
     rmsd_and_scores.plot.scatter(x='rmsd', y='total_score', ax=ax)
+    
     y_min, y_max = ax.get_ylim()
     x_position = 9.9
     y_position = y_min + 1
@@ -57,11 +64,14 @@ def rmsd_vs_score_plot(rmsd_and_scores, ref_name):
     ax.set_title('Total Score vs RMSD', fontsize=20)
     plt.tight_layout()
     plt.savefig(f'rmsd_vs_score_{ref_name}.png', dpi=300)
+    best_model = rmsd_and_scores.iloc[0]
+    return pnear, CI, best_model
 
 def main(rmsd_path, ref_name, score_path='scores/fullscore_sorted.sc'):
     scores_descriptions = clean_and_read_score_file(score_path)
     rmsd_and_scores = join_rmsd_scores(rmsd_path, scores_descriptions)
-    rmsd_vs_score_plot(rmsd_and_scores, ref_name)
+    pnear, CI, best_model = rmsd_vs_score_plot(rmsd_and_scores, ref_name)
+    return pnear, CI, best_model
 if __name__ == '__main__':
     import argparse
 
