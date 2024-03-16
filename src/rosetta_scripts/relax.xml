@@ -1,0 +1,12 @@
+<ROSETTASCRIPTS>
+	<SCOREFXNS>
+ 		<ScoreFunction name="relaxscore" weights="beta_genpot_cart"/>
+ 	</SCOREFXNS>	
+ 	<MOVERS>
+ 		<FastRelax name="relax" relaxscript="scripts/src/rosetta_scripts/legacy.beta_nov16.txt" scorefxn="relaxscore"/>
+ 	</MOVERS>
+ 	<PROTOCOLS>
+ 		<Add mover="relax"/>
+ 	</PROTOCOLS>
+ 	<OUTPUT scorefxn="relaxscore"/>
+</ROSETTASCRIPTS>

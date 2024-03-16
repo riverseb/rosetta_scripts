@@ -1,0 +1,11 @@
+-nstruct 60 
+-in:file:extra_res_path ../gen_params/
+-coupled_moves:ntrials 2500 
+-gen_potential
+-ex1 
+-ex2 
+-packing:extrachi_cutoff 0 
+-coupled_moves:ligand_mode true 
+-coupled_moves:number_ligands 2 
+-coupled_moves:ligand_weight 2 
+-coupled_moves:ligand_prob 0.1
