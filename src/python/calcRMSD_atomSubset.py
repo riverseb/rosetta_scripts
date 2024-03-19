@@ -65,21 +65,16 @@ def calc_rmsd_atomSubset(aligned_ref_ligand, query_ligand):
     :param query_ligand: query ligand pdb file
     """
     # load the reference ligand
-    print("Loading reference ligand...")
     ref_mol = rd.rdmolfiles.MolFromMol2File(aligned_ref_ligand)
-    print("Loading query ligand...")
     query_mol = rd.rdmolfiles.MolFromMol2File(query_ligand)
-    print("Performing substructure matching for reference ligand...")
-    ref_match = ref_mol.GetSubstructMatch(query_mol)
-    print("Performing substructure matching for query ligand...")
-    query_match = query_mol.GetSubstructMatch(ref_mol)
-    print("Calculating RMSD...")
+    # ref_match = ref_mol.GetSubstructMatch(query_mol)
+    # query_match = query_mol.GetSubstructMatch(ref_mol)
     # rmsd = AllChem.CalcRMS(ref_mol, query_mol, map=[list(zip(query_match , ref_match))])
     try:
         rmsd = rdMolAlign.CalcRMS(ref_mol, query_mol)
         return rmsd
     except:
-        print(f"RMSD calculation failed for {query_ligand}")
+        print(f"WARNING: RMSD calculation failed for {query_ligand}")
         rmsd = None
         return rmsd  
     
@@ -112,14 +107,11 @@ def main(ref_pdb, query_pdb_dir, ref_ligand, query_ligand):
             index_list = query.split(".")[0].split("_")[-2:]
             index = "_".join(index_list)
             # extract and save query ligand
-            print(f"Extracting query ligand for {query}...")
             extract_and_save_query_ligand(query_pdb, query_ligand, index)
             # calculate rmsd
-            print(f"Calculating rmsd for {query}...")
             rmsd = calc_rmsd_atomSubset(f"aligned_{ref_ligand}.mol2", f"docked_ligands/{query_ligand}_{index}.mol2")
             # add to rmsd table
             if rmsd:
-                print(f"Adding {query} to rmsd table...")
                 rmsd_table.append([rmsd, query_ligand, query])
         # sort by rmsd
         sorted_rmsd_table = sorted(rmsd_table, key=lambda x: float(x[0]))
