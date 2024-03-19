@@ -67,10 +67,17 @@ def rmsd_vs_score_plot(rmsd_and_scores, ref_name):
     best_model = rmsd_and_scores.iloc[0]
     return pnear, CI, best_model
 
-def main(rmsd_path, ref_name, score_path='scores/fullscore_sorted.sc'):
+def main(rmsd_path, ref_name, score_path='scores/fullscore_sorted.sc', outfile=None):
     scores_descriptions = clean_and_read_score_file(score_path)
     rmsd_and_scores = join_rmsd_scores(rmsd_path, scores_descriptions)
     pnear, CI, best_model = rmsd_vs_score_plot(rmsd_and_scores, ref_name)
+    if outfile:
+        with open(outfile, 'w') as f:
+            f.seek(0)
+            f.write(f'pnear\tCI_lower\tCI_upper\tlowest rmsd model\tscore\trmsd\n')
+            f.write(f'{pnear}\t{CI[0]}\t{CI[1]}\t{best_model["description"]}\t' +
+                    f'{best_model["total_score"]}\t{best_model["rmsd"]}\n')
+            f.truncate()
     return pnear, CI, best_model
 if __name__ == '__main__':
     import argparse

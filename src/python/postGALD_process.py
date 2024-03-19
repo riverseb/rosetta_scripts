@@ -44,7 +44,8 @@ def main(project, inputFile, repeats=5, native=None, rmsd=True, query_pdbs="pdbs
         if not rmsd_path:
             rmsd_path = f"scores/rmsd_scores_{ref_name}.txt"
         print("Plotting rmsd vs score...", flush=True)
-        pnear, CI, best_model =rmsd_plot.main(rmsd_path, ref_name, score_path)
+        pnear, CI, best_model =rmsd_plot.main(rmsd_path, ref_name, score_path,
+                                              outfile="PNear.txt")
         print(f"PNear: {pnear:.2f} (CI 95%:[{CI[0]:.3f} - {CI[1]:.3f}]), Best Model: {best_model}")
         return pnear, CI, best_model
     elif rmsd and not native:
