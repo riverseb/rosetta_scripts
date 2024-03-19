@@ -20,7 +20,11 @@ def HT_process(input_name, GALD_repeats=100, n_structs=100,
         split_input_name = input_name.split("_")
         inputFile = "_".join(split_input_name[0:2]) + f"_{i}_" + "_".join(split_input_name[2:])
         print(f"Starting: {inputFile}", flush=True)
-        os.chdir(inputFile)
+        try:
+            os.chdir(inputFile)
+        except:
+            print(f"WARNING: {inputFile} does not exist")
+            continue
         pnear, CI, best_model =pgp.main(project=inputFile, inputFile=inputFile, 
                                         repeats=GALD_repeats, native=native, 
                                         rmsd=rmsd, query_pdbs=query_pdbs, 
