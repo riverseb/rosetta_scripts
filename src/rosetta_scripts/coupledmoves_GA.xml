@@ -1,0 +1,60 @@
+<ROSETTASCRIPTS>
+    <SCOREFXNS>
+        <ScoreFunction name="dockscore" weights="beta_genpot">
+            <Reweight scoretype="fa_rep" weight="0.2"/>
+        </ScoreFunction>
+    </SCOREFXNS>
+    <RESIDUE_SELECTORS>
+         <Neighborhood name="PC2_neighbors" distance="10.0">
+            <ResidueName residue_name3="PC2" />
+        </Neighborhood>
+
+    </RESIDUE_SELECTORS>
+    <TASKOPERATIONS>
+        <ReadResfile name="resfile" filename="/nfs/turbo/umms-maom/projects/IMDAase/rosetta/CitL.resfile"/>
+        <RestrictToRepacking name="restrict_to_repack"/>
+    </TASKOPERATIONS>
+    <MOVERS>
+        <CoupledMovesProtocol name="coupled_moves" task_operations="resfile"/>
+        <WriteFiltersToPose name="writer" prefix="BuriedUnsats_"/>
+    </MOVERS>
+    <FILTERS>
+        <BuriedUnsatHbonds
+            name="buriedunsats_bb"
+            report_bb_heavy_atom_unsats="true"
+            residue_selector="PC2_neighbors"
+            scorefxn="dockscore"
+            cutoff="4"
+            residue_surface_cutoff="20.0"
+            ignore_surface_res="true"
+            print_out_info_to_pdb="true"/>
+        <BuriedUnsatHbonds 
+            name="buriedunsats_sc"
+            report_sc_heavy_atom_unsats="true"
+            residue_selector="PC2_neighbors"
+            scorefxn="dockscore"
+            cutoff="0"
+            residue_surface_cutoff="20.0"
+            ignore_surface_res="true"
+            print_out_info_to_pdb="true"/>
+        <LigInterfaceEnergy
+            name="liginterface" scorefxn="dockscore"/>
+        <MoveBeforeFilter
+            name="movebefore_bb"
+            mover_name="coupled_moves"
+            filter_name="buriedunsats_bb"/>
+        <MoveBeforeFilter
+            name="movebefore_sc"
+            mover_name="coupled_moves"
+            filter_name="buriedunsats_sc"/>
+        <MoveBeforeFilter
+            name="movebefore_liginterface"
+            mover_name="coupled_moves"
+            filter_name="liginterface"/>
+
+    </FILTERS>
+    <PROTOCOLS>
+        <Add mover_name="writer"/>
+        <Add mover_name="coupled_moves"/>
+    </PROTOCOLS>
+</ROSETTASCRIPTS>

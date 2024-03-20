@@ -23,9 +23,11 @@ def main(project, inputFile, repeats=5, native=None, rmsd=True, query_pdbs="pdbs
     :param score_path: path to score file
     """
     if clean:
+        print("Cleaning files...")
         file_clean.main(project, inputFile, repeats)
     if rmsd and native:
         if query_lig and ref_lig:
+            print("Calculating rmsd...")
             rmsd_calc.main(native, query_pdbs, ref_lig, query_lig)
         elif not query_lig and not ref_lig:
             ref_parsed_lig = native.strip(".pdb").split("_")[-1]
@@ -38,11 +40,17 @@ def main(project, inputFile, repeats=5, native=None, rmsd=True, query_pdbs="pdbs
             query_parsed_lig = inputFile.strip(".pdb").split("_")[-1]
             rmsd_calc.main(native, query_pdbs, ref_parsed_lig, query_lig)
         ref_name = native.split("/")[-1].split(".")[0]
+        
         if not rmsd_path:
             rmsd_path = f"scores/rmsd_scores_{ref_name}.txt"
-        rmsd_plot.main(rmsd_path, ref_name, score_path)
+        print("Plotting rmsd vs score...", flush=True)
+        pnear, CI, best_model =rmsd_plot.main(rmsd_path, ref_name, score_path,
+                                              outfile="PNear.txt")
+        print(f"PNear: {pnear:.2f} (CI 95%:[{CI[0]:.3f} - {CI[1]:.3f}]), Best Model: {best_model}")
+        return pnear, CI, best_model
     elif rmsd and not native:
         raise ArgumentError("Must provide native pdb file for rmsd calculation.")
+    
     
 
 if __name__ == "__main__":

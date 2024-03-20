@@ -1,0 +1,23 @@
+<ROSETTASCRIPTS>
+	<SCOREFXNS>
+ 		<ScoreFunction name="dockscore" weights="beta_genpot">
+ 			<Reweight scoretype="fa_rep" weight="0.2"/>
+ 			<Reweight scoretype="coordinate_constraint" weight="0.1"/>
+		</ScoreFunction>
+ 		<ScoreFunction name="relaxscore" weights="beta_genpot_cart"/>
+ 	</SCOREFXNS>
+ 	<TASKOPERATIONS>
+        <ReadResfile name="resfile" filename="/nfs/turbo/umms-maom/projects/IMDAase/rosetta/AlaScan.resfile"/>
+    </TASKOPERATIONS>	
+ 	<MOVERS>
+ 		<GALigandDock name="dock" runmode="%%runmode%%" scorefxn="dockscore" scorefxn_relax="relaxscore" />
+ 	</MOVERS>
+ 	<FILTERS>
+ 		<DdGScan name="AlaScan" task_operations="resfile" repeats="3" scorefxn="relaxscore" write2pdb="1" />
+ 	</FILTERS>
+ 	<PROTOCOLS>
+ 		<Add mover="dock"/>
+ 		<Add filter="AlaScan"/>
+ 	</PROTOCOLS>
+ 	<OUTPUT scorefxn="relaxscore"/>
+</ROSETTASCRIPTS>

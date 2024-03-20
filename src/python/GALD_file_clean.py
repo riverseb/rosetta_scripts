@@ -41,11 +41,12 @@ def rename_projFiles(project, inputFile, n = 5):
             else:
                 origFile = inputFile + "_0001_" + "00" + x.__str__() 
             # replace the original pdb file names with the new ones in the score file
-            with fileinput.FileInput(scorefile, inplace=True, backup='.bak') as file:
-                # loop over lines in the score file
-                for line in file:
-                    # replace the original pdb file names with the new ones
-                    print(line.replace(origFile, pdbFile), end="")
+            if os.path.exists(scorefile):
+                with fileinput.FileInput(scorefile, inplace=True, backup='.bak') as file:
+                    # loop over lines in the score file
+                    for line in file:
+                        # replace the original pdb file names with the new ones
+                        print(line.replace(origFile, pdbFile), end="")
             # create original pdb file path and new pdb file path and name
             infilename = origFile + ".pdb"
             pdbFilePath =  "../pdbs/" + pdbFile
@@ -66,7 +67,7 @@ def combine_scores(scores):
         # creates list for all score data
         full_data =[]
         # creates a list of files from specified directory of just score files
-        scoreFiles = [file for file in os.listdir(scores) if file.endswith(".sc")] 
+        scoreFiles = [file for file in os.listdir(scores) if file.endswith(".sc") and file != "fullscore_sorted.sc"] 
         # changes directory to specified directory
         os.chdir(scores)
         # loop through files
@@ -82,11 +83,13 @@ def combine_scores(scores):
         sorted_data = sorted(full_data, key=lambda x: float(x[1]))
         # write sorted data to file
         with open("fullscore_sorted.sc", 'w', encoding='utf-8') as outfile:
+            outfile.seek(0)
             # write header formatted to 20 char columns and remove SCORE: column
             outfile.write("".join("{:<20}".format(x) for x in header if x != "SCORE:") + "\n")
             # write sorted data formatted to 20 char columns and remove SCORE: column
             for row in sorted_data:
                 outfile.write("".join("{:<20}".format(s) for s in row if s != "SCORE:") + "\n")
+            outfile.truncate()
         os.chdir("..")        
     else:
         raise TypeError("Input is not a directory")

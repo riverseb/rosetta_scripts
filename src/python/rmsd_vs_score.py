@@ -1,6 +1,8 @@
 ## Authors: @riverseb
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
+import seaborn.objects as so
 from PNear import main as pnear_main
 def clean_and_read_score_file(file_path):
     """
@@ -32,6 +34,11 @@ def join_rmsd_scores(rmsd_path, scores_descriptions):
     """
     rmsd_df = pd.read_csv(rmsd_path, delimiter='\t', header=0)
     rmsd_and_scores = rmsd_df.merge(scores_descriptions, on='description')
+    with open('rmsd_and_scores.csv', 'w') as f:
+        f.seek(0)
+        rmsd_and_scores.to_csv(f, index=False, sep='\t', mode="w")
+        f.truncate()
+    # rmsd_and_scores.to_csv('rmsd_and_scores.csv', index=False, sep='\t', mode="w")
     return rmsd_and_scores
 def rmsd_vs_score_plot(rmsd_and_scores, ref_name):
     """
@@ -42,7 +49,9 @@ def rmsd_vs_score_plot(rmsd_and_scores, ref_name):
     :param ref_name: The reference pdb name.
     """
     fig, ax = plt.subplots(figsize=(6.5, 4.1))
+    # Plot rmsd vs total score
     rmsd_and_scores.plot.scatter(x='rmsd', y='total_score', ax=ax)
+    
     y_min, y_max = ax.get_ylim()
     x_position = 9.9
     y_position = y_min + 1
@@ -57,11 +66,41 @@ def rmsd_vs_score_plot(rmsd_and_scores, ref_name):
     ax.set_title('Total Score vs RMSD', fontsize=20)
     plt.tight_layout()
     plt.savefig(f'rmsd_vs_score_{ref_name}.png', dpi=300)
-
-def main(rmsd_path, ref_name, score_path='scores/fullscore_sorted.sc'):
+    best_model = rmsd_and_scores.iloc[0]
+    return pnear, CI, best_model
+def scatter_plot(df, x, y, style=None, hue=None):
+    fig = plt.figure(figsize=(8,7))
+    # ax = (so.Plot(df, x=x, y=y, color=hue, pointsize=15, marker=style)
+    #       .add(so.Dot())
+    #       .scale(marker = so.Nominal(order=["CitL", "CtdP", "CitL CM4-58-2"]))
+    #       )
+    sns.set_theme(rc={"lines.markersize": 15})
+    ax = sns.scatterplot(data=df, x=x, y=y, style=style, hue=hue, palette="Set2", 
+                        legend="brief", hue_order=df["Protein"], style_order=df["Protein"])
+    # label_counts = df[hue].value_counts()
+    # print(label_counts)
+    ax.set_xlabel(x, fontsize=20, labelpad=10)
+    ax.set_ylabel(y, fontsize=20, labelpad=10)
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    # box = ax.get_position()
+    # ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+    # ax.legend(labels=df["Protein"])
+    ax.set_title(f'{x} vs {y}', fontsize=25, pad=15)
+    ax.tick_params(axis='both', which='major', labelsize=15)
+    fig.savefig(f'{x} vs {y}.png', dpi=300)
+def main(rmsd_path, ref_name, score_path='scores/fullscore_sorted.sc', outfile=None):
     scores_descriptions = clean_and_read_score_file(score_path)
     rmsd_and_scores = join_rmsd_scores(rmsd_path, scores_descriptions)
-    rmsd_vs_score_plot(rmsd_and_scores, ref_name)
+    pnear, CI, best_model = rmsd_vs_score_plot(rmsd_and_scores, ref_name)
+    if outfile:
+        with open(outfile, 'w') as f:
+            f.seek(0)
+            f.write(f'pnear\tCI_lower\tCI_upper\tlowest rmsd model\tscore\trmsd\n')
+            f.write(f'{pnear}\t{CI[0]}\t{CI[1]}\t{best_model["description"]}\t' +
+                    f'{best_model["total_score"]}\t{best_model["rmsd"]}\n')
+            f.truncate()
+    return pnear, CI, best_model
 if __name__ == '__main__':
     import argparse
 
