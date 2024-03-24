@@ -1,0 +1,18 @@
+<ROSETTASCRIPTS>
+	<SCOREFXNS>
+ 		<ScoreFunction name="dockscore" weights="beta_genpot">
+ 			<Reweight scoretype="fa_rep" weight="0.2"/>
+ 			<Reweight scoretype="coordinate_constraint" weight="0.1"/>
+		</ScoreFunction>
+ 		<ScoreFunction name="relaxscore" weights="beta_genpot_cart"/>
+ 	</SCOREFXNS>	
+ 	<MOVERS>
+		<FastRelax name="relax" scorefxn="relaxscore" relaxscript="%%relax_script%%" /> 
+ 		<GALigandDock name="dock" runmode="%%runmode%%" scorefxn="dockscore" scorefxn_relax="relaxscore" />
+ 	</MOVERS>
+ 	<PROTOCOLS>
+ 		<Add mover="relax"/>
+		<Add mover="dock"/>
+ 	</PROTOCOLS>
+ 	<OUTPUT scorefxn="relaxscore"/>
+</ROSETTASCRIPTS>

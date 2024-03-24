@@ -1,5 +1,4 @@
--parser:protocol /nfs/turbo/umms-maom/projects/IMDAase/rosetta/scripts/src/rosetta_scripts/GAligandDock.xml
--parser:script_vars relax_script=/nfs/turbo/umms-maom/projects/IMDAase/rosetta/scripts/src/rosetta_scripts/legacy.beta_nov16.txt
+-parser:protocol /nfs/turbo/umms-maom/projects/IMDAase/rosetta/scripts/src/rosetta_scripts/GAligandDock_noRelax.xml
 -parser:script_vars runmode=dockflex
 -extra_res_path /nfs/turbo/umms-maom/projects/IMDAase/rosetta/gen_params/
 -gen_potential 
