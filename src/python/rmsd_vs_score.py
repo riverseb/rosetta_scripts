@@ -53,17 +53,17 @@ def rmsd_vs_score_plot(rmsd_and_scores, ref_name):
     rmsd_and_scores.plot.scatter(x='rmsd', y='total_score', ax=ax)
     
     y_min, y_max = ax.get_ylim()
-    x_position = 9.9
-    y_position = y_min + 1
+    x_position = 0.1
+    y_position = y_max - 1
     bbox_props = dict(boxstyle="round,pad=0.3", fc="w", ec="r", lw=2)
     pnear, CI = pnear_main(rmsd_and_scores, bootstrap_n=750, lambda_val=2)
     ax.text(x_position, y_position, f"PNear: {pnear:.2f} (CI 95%:[{CI[0]:.3f} - {CI[1]:.3f}])", 
-            fontsize=13, ha="right", va="bottom", bbox=bbox_props, transform=ax.transData)
-    ax.set_xlabel('RMSD ($\AA$)', fontsize=20, labelpad=10)
-    ax.set_ylabel('Total Score (REU)', fontsize=20, labelpad=10)
+            fontsize=13, ha="left", va="top", bbox=bbox_props, transform=ax.transData)
+    ax.set_xlabel('RMSD ($\AA$)', fontsize=15, labelpad=10)
+    ax.set_ylabel('Total Score (REU)', fontsize=15, labelpad=10)
     ax.set_xlim(0, 10)
-    ax.tick_params(axis='both', which='major', labelsize=20)
-    ax.set_title('Total Score vs RMSD', fontsize=20)
+    ax.tick_params(axis='both', which='major', labelsize=15)
+    ax.set_title('Total Score vs RMSD', fontsize=15)
     plt.tight_layout()
     plt.savefig(f'rmsd_vs_score_{ref_name}.png', dpi=300)
     best_model = rmsd_and_scores.iloc[0]
