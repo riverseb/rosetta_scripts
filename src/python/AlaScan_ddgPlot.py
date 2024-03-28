@@ -76,12 +76,12 @@ def create_dataframe_from_file(file_path):
 def create_bar_graph(df):
     plt.figure(figsize=(6,4))
     plt.bar(df['Mutation'], df['Avg_DDG'], yerr=df['Std_Err'], capsize=5)
-    plt.xlabel('Mutations', fontsize=20)
-    plt.tick_params(axis='both', which='major', labelsize=20)
-    plt.ylabel('$\Delta\Delta$G (REU)', fontsize=20)
-    plt.title('$\Delta\Delta$G of Alanine Scan', fontsize=20)
+    plt.xlabel('Mutations', fontsize=15)
+    plt.tick_params(axis='both', which='major', labelsize=15)
+    plt.ylabel('$\Delta\Delta$G (REU)', fontsize=15)
+    plt.title('$\Delta\Delta$G of Alanine Scan', fontsize=15)
     plt.axhline(y=0, color='black', linestyle='--')
-    plt.xticks(rotation=90)
+    plt.xticks(rotation=45)
     plt.savefig('ddg_plot.png', dpi=300, bbox_inches='tight')
 
 def main(rossetta_log, outfile):
