@@ -63,26 +63,33 @@ def rmsd_vs_score_plot(rmsd_and_scores, ref_name):
     ax.set_ylabel('Total Score (REU)', fontsize=15, labelpad=10)
     ax.set_xlim(0, 10)
     ax.tick_params(axis='both', which='major', labelsize=15)
-    ax.set_title('Total Score vs RMSD', fontsize=15)
+    # ax.set_title('Total Score vs RMSD', fontsize=15)
     plt.tight_layout()
     plt.savefig(f'rmsd_vs_score_{ref_name}.png', dpi=300)
     best_model = rmsd_and_scores.iloc[0]
     return pnear, CI, best_model
 def scatter_plot(df, x, y, style=None, hue=None):
-    fig = plt.figure(figsize=(8,7))
+    fig = plt.figure(figsize=(10,7))
     # ax = (so.Plot(df, x=x, y=y, color=hue, pointsize=15, marker=style)
     #       .add(so.Dot())
     #       .scale(marker = so.Nominal(order=["CitL", "CtdP", "CitL CM4-58-2"]))
     #       )
     sns.set_theme(rc={"lines.markersize": 15})
-    ax = sns.scatterplot(data=df, x=x, y=y, style=style, hue=hue, palette="Set2", 
-                        legend="brief", hue_order=df["Protein"], style_order=df["Protein"])
+    if style and hue is not None:
+        ax = sns.scatterplot(data=df, x=x, y=y, style=style, hue=hue, palette="Set2", 
+                        legend="brief", alpha=0.8) #, hue_order=df["Protein"], style_order=df["Protein"]
+    else:
+        ax = sns.scatterplot(data=df, x=x, y=y)
     # label_counts = df[hue].value_counts()
     # print(label_counts)
     ax.set_xlabel(x, fontsize=20, labelpad=10)
     ax.set_ylabel(y, fontsize=20, labelpad=10)
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
+    ax.set_xlim(-0.2, 1)
+    ax.set_ylim(-0.2, 1)
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+    ax.legend(loc="upper left", bbox_to_anchor=(1, 1))
+    plt.axline((0,0), slope=1, color='r', linestyle='--', linewidth=1)
     # box = ax.get_position()
     # ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
     # ax.legend(labels=df["Protein"])
