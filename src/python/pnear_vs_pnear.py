@@ -7,7 +7,7 @@ import argparse
 
 def main(data, x, y, style=None, hue=None):
     df = pd.read_csv(data, sep=',', header=0)
-    scatter_plot(df, x, y, style, hue)
+    scatter_plot(df, x, y, style=style, hue=hue)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
