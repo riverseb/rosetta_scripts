@@ -60,6 +60,17 @@ def rename_projFiles(project, inputFile, n = 5):
         # delete empty repeat folder
         if not os.listdir(folder_name):
             os.rmdir(folder_name)
+        # check if crash log exists and move it to its own folder
+        elif "ROSETTA_CRASH.log" in os.listdir(folder_name):
+            if not os.path.exists("crash_logs/"):
+                os.mkdir("crash_logs/")
+            os.rename(f"{folder_name}/ROSETTA_CRASH.log", f"crash_logs/ROSETTA_CRASH_{index.__str__()}.log")
+            # delete folder if empty
+            if not os.listdir(folder_name):
+                os.rmdir(folder_name)
+            # print warning if folder is not empty
+            else:
+                print("WARNING: Failed to clean folder " + folder_name)
     
 def combine_scores(scores):
     ### Usage: This function is designed to combine the scores from all repeats    

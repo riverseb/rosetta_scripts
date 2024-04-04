@@ -4,6 +4,7 @@ from numpy import array
 from numpy import exp
 import sklearn.utils as sk
 from scipy import stats
+import argparse
 # calculate funnel-likeness of rmsd vs score plots using PNear calculation
 def calculate_pnear( scores, rmsds, lambda_val=2.0, kbt=0.62 ) :                                                                                                                                            
     nscores = len(scores)                                                                                                                                                                                   
@@ -73,24 +74,48 @@ def bootstrap_pnear_peptide(data_frame, x_column, y_column, bootstrap_n=1000, la
     bootstraped_pnears_df = pd.DataFrame(bootstrap_vals, columns=["pnear_vals"])                                                                                                                            
     print(bootstraped_pnears_df)                                                                                                                                                                                                        
     return bootstraped_pnears_df    
-
+def subsample_pnear(rmsd_vs_score, n_samples=100, cycles=100, lambda_val=2.0, kbt=0.62):
+    with open("pnear_subsampling.csv", "w") as f:
+        f.write("index,pnear\n")
+        for i in range(cycles):
+            if i % 10 == 0: print("now on subsample step: " + str(i))
+            rmsd_score_subsample = rmsd_vs_score.sample(n=n_samples)
+            rmsd_score_subsample.reset_index(drop=True, inplace=True)
+            pnear = calculate_pnear(rmsd_score_subsample['total_score'].astype(float), 
+                                    rmsd_score_subsample['rmsd'].astype(float), 
+                                    lambda_val=lambda_val, kbt=kbt)
+            f.write(f"{i},{pnear}\n")
+            
 # calculate confidence interval of PNear using bootstrap resampled data
 def calc_PNear_CI(df, confidence=0.95):
     mean = df['pnear_vals'].mean()
     sem = df['pnear_vals'].sem()
     confintv = stats.t.interval(confidence, df=len(df)-1, loc=mean, scale=sem)
-    # print(stats.t.shapes)
-    # t_score = stats.t.ppf(array(confidence), loc=array(mean), scale=array(sem), df=array(len(df)-1))
-    # confintv = [float(mean - t_score*sem), float(mean + t_score*sem)]
     return confintv
 
-def main(rmsd_vs_score, bootstrap_n=1000, confidence=0.95, lambda_val=2, kbt=0.62):
+def main(rmsd_vs_score, bootstrap_n=1000, confidence=0.95, lambda_val=2, kbt=0.62, subsample=False):
     pnear = calculate_pnear(rmsd_vs_score['total_score'].astype(float), rmsd_vs_score['rmsd'].astype(float), lambda_val=lambda_val, kbt=kbt)
-    bootstraped_pnears_df = bootstrap_pnear_peptide(rmsd_vs_score, 'rmsd', 'total_score', bootstrap_n=bootstrap_n, lambda_val=lambda_val, kbt=kbt)
-    confintv = calc_PNear_CI(bootstraped_pnears_df, confidence)
-    return pnear, confintv
+    if subsample:
+        subsample_pnear(rmsd_vs_score, n_samples=100, cycles=100, lambda_val=lambda_val, kbt=kbt)
+    else:
+        bootstraped_pnears_df = bootstrap_pnear_peptide(rmsd_vs_score, 'rmsd', 'total_score', bootstrap_n=bootstrap_n, lambda_val=lambda_val, kbt=kbt)
+        confintv = calc_PNear_CI(bootstraped_pnears_df, confidence)
+        return pnear, confintv
 
-
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--rmsd_path', type=str, required=True)
+    parser.add_argument('--bootstrap_n', type=int, default=1000)
+    parser.add_argument('--confidence', type=float, default=0.95)
+    parser.add_argument('--lambda_val', type=float, default=2)
+    parser.add_argument('--kbt', type=float, default=0.62)
+    parser.add_argument('--subsample', action="store_true", default=False)
+    args = parser.parse_args()
+    rmsd_vs_score = pd.read_csv(args.rmsd_path, header=0, sep='\t')
+    if args.subsample:
+        main(rmsd_vs_score, args.bootstrap_n, args.confidence, args.lambda_val, args.kbt, args.subsample)
+    else:
+        pnear, CI = main(rmsd_vs_score, args.bootstrap_n, args.confidence, args.lambda_val, args.kbt, args.subsample)
 
 
 
