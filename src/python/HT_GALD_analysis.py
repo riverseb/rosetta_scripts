@@ -13,6 +13,7 @@ def HT_process(project_dir, GALD_repeats=50, n_structs=100,
                native=None, rmsd=True, query_pdbs="pdbs/", query_lig=None, 
                ref_lig=None, target=None, target_lig=None, clean=True, rmsd_path=None, score_path="scores/fullscore_sorted.sc"):
     print("Starting HT process...")
+    os.chdir(project_dir)
     i = 0
     query_lig_list = query_lig.split(",")
     # Create empty dataframe
@@ -32,14 +33,15 @@ def HT_process(project_dir, GALD_repeats=50, n_structs=100,
         except:
             print(f"WARNING: {inputFile} does not exist")
             continue
-        
+        # TODO: this needs to be made into a function
         os.chdir(f"{inputFile}_{query_lig_list[0]}")
-        pnear, CI, best_model = pgp.main(project=f"{inputFile}_{query_lig_list[0]}", inputFile=f"{inputFile}_{query_lig_list[0]}", 
-                                    repeats=GALD_repeats, native=native, 
-                                    rmsd=rmsd, query_pdbs=query_pdbs, 
-                                    query_lig=query_lig_list[0], ref_lig=ref_lig, 
-                                    clean=clean, rmsd_path=rmsd_path, 
-                                    score_path=score_path)
+        pnear, CI, best_model = pgp.main(project=f"{inputFile}_{query_lig_list[0]}", 
+                                         inputFile=f"{inputFile}_{query_lig_list[0]}", 
+                                         repeats=GALD_repeats, native=native, 
+                                         rmsd=rmsd, query_pdbs=query_pdbs, 
+                                         query_lig=query_lig_list[0], ref_lig=ref_lig, 
+                                         clean=clean, rmsd_path=rmsd_path, 
+                                         score_path=score_path)
         results = {
         'pnear': pnear,
         'CI': CI,
@@ -47,16 +49,17 @@ def HT_process(project_dir, GALD_repeats=50, n_structs=100,
         'total_score': best_model['total_score'],
         'best_model': best_model['description']
         }
+        # TODO: End of function
         print(f"Done postGALD processing: {inputFile}_{query_lig_list[0]}", flush=True)
         pnears_CIs = pnears_CIs.append(results, ignore_index=True)
         pnear_native = pnear
         
         os.chdir(f"../{inputFile}_{query_lig_list[1]}")
         pnear, CI, best_model = pgp.main(project=f"{inputFile}_{query_lig_list[1]}", 
-                                         inputFile=f"{inputFile}_{query_lig_list[1]}", repeats=GALD_repeats, 
-                                         native=target, rmsd=rmsd, query_pdbs=query_pdbs, 
-                                         query_lig=query_lig_list[1], ref_lig=target_lig, 
-                                         clean=clean, rmsd_path=rmsd_path, 
+                                         inputFile=f"{inputFile}_{query_lig_list[1]}", 
+                                         repeats=GALD_repeats, native=target, rmsd=rmsd, 
+                                         query_pdbs=query_pdbs, query_lig=query_lig_list[1], 
+                                         ref_lig=target_lig, clean=clean, rmsd_path=rmsd_path, 
                                          score_path=score_path)
         results = {
         'pnear': pnear,
@@ -74,6 +77,7 @@ def HT_process(project_dir, GALD_repeats=50, n_structs=100,
         i += 1
         os.chdir("../..")
     pnears_CIs.to_csv('pnears_CIs.csv', index=False, sep='\t')
+    pnear_vs_pnear.to_csv('pnear_vs_pnear.csv', index=False, sep='\t')
     return pnears_CIs, pnear_vs_pnear
 def pnear_hist(pnear_CIs):
     fig = plt.figure(figsize=(10,6))
@@ -84,13 +88,13 @@ def pnear_hist(pnear_CIs):
 def main(project_dir, n_structs=100, GALD_repeats=50, native=None, 
          rmsd=True, query_pdbs="pdbs/", query_lig=None, ref_lig=None, target=None, 
          target_lig=None, clean=True, rmsd_path=None, score_path="scores/fullscore_sorted.sc"):
-    pnears_CIs, pnear_vs_pnear = HT_process(project_dir, GALD_repeats=GALD_repeats, 
-                            n_structs=n_structs, native=native, rmsd=rmsd, 
-                            query_pdbs=query_pdbs, query_lig=query_lig, 
-                            ref_lig=ref_lig, target_lig=target_lig, target=target, 
-                            clean=clean, rmsd_path=rmsd_path, score_path=score_path)
+    pnears_CIs = HT_process(project_dir, GALD_repeats=GALD_repeats, 
+                             n_structs=n_structs, native=native, rmsd=rmsd, 
+                             query_pdbs=query_pdbs, query_lig=query_lig, 
+                             ref_lig=ref_lig, target_lig=target_lig, target=target, 
+                             clean=clean, rmsd_path=rmsd_path, score_path=score_path)
     query_lig_list = args.query_lig.split(",")
-    pnear_plt(pnear_vs_pnear, f'PNear {query_lig_list[0]}', f'PNear {query_lig_list[1]}')
+    pnear_plt("pnear_vs_pnear.csv", f'PNear {query_lig_list[0]}', f'PNear {query_lig_list[1]}')
     pnear_hist(pnears_CIs)
 
 if __name__ == "__main__":
