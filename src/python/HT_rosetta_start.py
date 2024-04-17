@@ -15,4 +15,4 @@ if __name__ == "__main__":
     parser.add_argument("array_id")
     parser.add_argument("--account", default="davidhs1")
     args = parser.parse_args()
-    main(args.project_dir, args.array_id, args.account)
+    main(args.project_dir, args.array_id, account=args.account)
