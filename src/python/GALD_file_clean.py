@@ -22,6 +22,7 @@ def rename_projFiles(project, inputFile, n = 5):
         try:
             os.chdir(folder_name)
         except:
+            # print(f"WARNING: {folder_name} not detected")
             continue
         # check if score file is present or if the score file has been renamed but not moved
         if os.path.exists("score.sc"):
@@ -82,25 +83,29 @@ def combine_scores(scores):
         # changes directory to specified directory
         os.chdir(scores)
         # loop through files
-        for file in scoreFiles:
-            with open(file, 'r') as input:
-                # creates a list of lines from specified file
-                lines = [line.strip().split() for line in input.readlines()]
-                # splits lines into header and data and throws out first line
-                __, header, *data = lines
-                # add data to full_data list
-                full_data.extend(data)
-        # sort data by score
-        sorted_data = sorted(full_data, key=lambda x: float(x[1]))
-        # write sorted data to file
-        with open("fullscore_sorted.sc", 'w', encoding='utf-8') as outfile:
-            outfile.seek(0)
-            # write header formatted to 20 char columns and remove SCORE: column
-            outfile.write("".join("{:<20}".format(x) for x in header if x != "SCORE:") + "\n")
-            # write sorted data formatted to 20 char columns and remove SCORE: column
-            for row in sorted_data:
-                outfile.write("".join("{:<20}".format(s) for s in row if s != "SCORE:") + "\n")
-            outfile.truncate()
+        if len(scoreFiles) != 0:
+            for file in scoreFiles:
+                with open(file, 'r') as input:
+                    # creates a list of lines from specified file
+                    lines = [line.strip().split() for line in input.readlines()]
+                    # splits lines into header and data and throws out first line
+                    __, header, *data = lines
+                    # add data to full_data list
+                    full_data.extend(data)
+            # sort data by score
+            sorted_data = sorted(full_data, key=lambda x: float(x[1]))
+            # write sorted data to file
+            with open("fullscore_sorted.sc", 'w', encoding='utf-8') as outfile:
+                outfile.seek(0)
+                # write header formatted to 20 char columns and remove SCORE: column
+                outfile.write("".join("{:<20}".format(x) for x in header if x != "SCORE:") + "\n")
+                # write sorted data formatted to 20 char columns and remove SCORE: column
+                for row in sorted_data:
+                    outfile.write("".join("{:<20}".format(s) for s in row if s != "SCORE:") + "\n")
+                outfile.truncate()
+        else:
+            print(f"WARNING: No score files detected in {scores}")
+            
         os.chdir("..")        
     else:
         raise TypeError("Input is not a directory")
