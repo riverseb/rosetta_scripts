@@ -34,12 +34,17 @@ class SLURM_settings:
             f.write(f'#SBATCH --partition={self.partition}\n')
             f.write(f'#SBATCH --time={self.time}\n')
             f.write(f'#SBATCH --account={self.account}\n')
-            f.write(f'#SBATCH --output={self.logdir}/{self.job_name}.log\n')
-            if self.array != None: f.write(f'#SBATCH --array={self.array}\n')
+            
+            if self.array != None: 
+                f.write(f'#SBATCH --array={self.array}\n')
+                f.write(f'#SBATCH --output={self.logdir}/{self.job_name}_%a.log\n')
+            else:
+                f.write(f'#SBATCH --output={self.logdir}/{self.job_name}.log\n')
             if self.nodes != None: f.write(f'#SBATCH --nodes={self.nodes}\n')
             if self.gpus == None:
                 f.write(f'#SBATCH --cpus-per-task={self.cpus}\n')
                 f.write(f'#SBATCH --mem-per-cpu={self.mem}\n')
+                
             else:
                 f.write(f'#SBATCH --gpus-per-task={self.gpus}\n')
                 f.write(f'#SBATCH --gres=gpu:{self.gpus}\n')
@@ -55,6 +60,6 @@ GALD_HT = SLURM_settings(
     mem = '5g',
     account = 'maom99',
     logdir = ' ',
-    array = "1-100",
+    array = "1-50",
     mail_type = 'FAIL'
 )
