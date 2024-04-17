@@ -34,12 +34,12 @@ def full_seq_gen(native, resnum_list, name_seq_pairs):
         for i in range(0, len(resnum_list)):
             # use native sequence as first input
             if i == 0:    
-                CM_seq = native_seq[:int(resnum_list[i])] + seq[i] + \
-                    native_seq[int(resnum_list[i]) + 1:]
+                CM_seq = native_seq[:int(resnum_list[i]) - 1] + seq[i] + \
+                    native_seq[int(resnum_list[i]):]
             # add mutations iteratively
             else:
-                CM_seq = CM_seq[:int(resnum_list[i])] + seq[i] + \
-                    CM_seq[int(resnum_list[i]) + 1:]
+                CM_seq = CM_seq[:int(resnum_list[i]) - 1] + seq[i] + \
+                    CM_seq[int(resnum_list[i]):]
         # write out each CM sequence as its own fasta file 
         with open(f"CM_fullfasta/{native_name}_CM_{name}.fasta", "w") as f:
             f.write(f">{native_name}_CM_{name}\n{CM_seq}\n")
@@ -53,8 +53,8 @@ def main(native, resnums, uniq_seqs):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-native", type=str, required=True, help="native sequence fasta file")
-    parser.add_argument("-resnums", type=str, required=True, help="comma separated ordered list of design positions")
-    parser.add_argument("-uniq_seqs", type=str, required=True, help="uniq seqs fasta file")
+    parser.add_argument("--native", type=str, required=True, help="native sequence fasta file")
+    parser.add_argument("--resnums", type=str, required=True, help="comma separated ordered list of design positions")
+    parser.add_argument("--uniq_seqs", type=str, required=True, help="uniq seqs fasta file")
     args = parser.parse_args()
     main(**vars(args))
